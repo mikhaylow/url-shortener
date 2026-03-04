@@ -1,8 +1,7 @@
 export class UrlService {
   constructor(repository) {
     this.repository = repository;
-    this.chars =
-      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    this.chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   }
 
   randStringRunes(length) {
@@ -15,6 +14,10 @@ export class UrlService {
   }
 
   saveURL(url, alias) {
+    let existUrl = this.repository.checkExists(url)
+    if (existUrl) {
+      return existUrl.alias
+    }
     return this.repository.saveURL(url, alias);
   }
 

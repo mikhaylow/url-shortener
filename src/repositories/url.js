@@ -1,8 +1,6 @@
-import Database from "better-sqlite3";
-
 export class UrlRepository {
-  constructor(path) {
-    this.database = new Database(path);
+  constructor(database) {
+    this.database = database;
   }
 
   init() {
@@ -15,8 +13,6 @@ export class UrlRepository {
 		PRIMARY KEY("id" AUTOINCREMENT)
      );
     `);
-
-    console.log("Database initialized");
   }
 
   saveURL(url, alias) {
@@ -33,5 +29,9 @@ export class UrlRepository {
 
   deleteURL(alias) {
     this.database.prepare(`DELETE FROM url WHERE alias = ?`).run(alias);
+  }
+
+  checkExists(url) {
+    return this.database.prepare("SELECT alias FROM url WHERE url = ?").get(url);
   }
 }

@@ -1,6 +1,7 @@
 export class UrlController {
-  constructor(service) {
+  constructor(service, config) {
     this.service = service;
+    this.config = config;
   }
 
   saveURL(req, res) {
@@ -13,9 +14,11 @@ export class UrlController {
 
       const alias = this.service.randStringRunes(6);
 
-      this.service.saveURL(url, alias);
+      const exist = this.service.saveURL(url, alias);
 
-      res.json({ alias });
+      const shortenUrl = `${this.config.server.host}${this.config.server.port}/url/${exist || alias}`;
+
+      res.json({ url: shortenUrl });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });

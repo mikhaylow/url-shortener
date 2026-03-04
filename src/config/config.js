@@ -11,7 +11,7 @@ export class Config {
       const data = yaml.load(await fs.readFile(this.path, "utf-8"));
       return data;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return null;
     }
   }

@@ -1,35 +1,45 @@
 import express from "express";
-import { UrlService } from "./services/url_service.js";
-import { UrlRepository } from "./repositories/url_repository.js";
+import { UrlService } from "./services/url.js";
+import { UrlRepository } from "./repositories/url.js";
 import { Config } from "./config/config.js";
-import { UrlController } from "./controllers/url_controller.js";
+import { UrlController } from "./controllers/url.js";
+import Database from "better-sqlite3";
+import morgan from "morgan";
 
 const config = new Config("./config/config.yml");
 const configData = await config.load();
 
-const repo = new UrlRepository(configData.database.path);
+const database = new Database(configData.database.path);
 
-repo.init();
+const urlRepo = new UrlRepository(database);
 
-const service = new UrlService(repo);
+urlRepo.init();
 
-const urlController = new UrlController(service);
+const urlService = new UrlService(urlRepo);
+
+const urlController = new UrlController(urlService, configData);
 
 const app = express();
 
 const port = configData.server.port;
 
+app.use(morgan("tiny"));
+
 app.use(express.json());
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
 
 app.post("/shorten", (req, res) => {
   urlController.saveURL(req, res);
 });
 
-app.get("/:alias", (req, res) => {
+app.get("/url/:alias", (req, res) => {
   urlController.getURL(req, res);
 });
 
-app.delete("/:alias", (req, res) => {
+app.delete("/url/:alias", (req, res) => {
   urlController.deleteURL(req, res);
 });
 
